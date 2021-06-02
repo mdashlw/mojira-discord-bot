@@ -63,7 +63,10 @@ export default class FilterFeedTask extends Task {
 
 			upcomingTickets = searchResults.issues.map( ( { key } ) => key );
 		} catch ( err ) {
-			FilterFeedTask.logger.error( `[${ this.id }] Error when searching for issues`, err );
+			FilterFeedTask.logger.error( `[${ this.id }] Error when searching for issues. Information:
+										\tStatus code: ${ err.response?.status || undefined }
+										\tStatus text: ${ err.response?.statusText || undefined }
+										\tError messages: ${ err.response?.data.errorMessages || undefined }`.replace( /\t/g, '' ).replace( /(?<=\n).*/g, '\t$&' ) );
 			return;
 		}
 
