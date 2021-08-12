@@ -5,6 +5,7 @@ import * as log4js from 'log4js';
 import Task from './Task';
 import { NewsUtil } from '../util/NewsUtil';
 import MojiraBot from '../MojiraBot';
+import { LoggerUtil } from '../util/LoggerUtil';
 
 export default class FilterFeedTask extends Task {
 	private static logger = log4js.getLogger( 'FilterFeedTask' );
@@ -63,10 +64,7 @@ export default class FilterFeedTask extends Task {
 
 			upcomingTickets = searchResults.issues.map( ( { key } ) => key );
 		} catch ( err ) {
-			FilterFeedTask.logger.error( `[${ this.id }] Error when searching for issues. Information:
-										Status code: ${ err.response?.status || undefined }
-										Status text: ${ err.response?.statusText || undefined }
-										Error messages: ${ err.response?.data.errorMessages || undefined }`.replace( /\t/g, '' ).replace( /(?<=\n).*/g, '\t$&' ) );
+			FilterFeedTask.logger.error( `[${ this.id }] Error when searching for issues. ${ LoggerUtil.shortenJiraError( err ) }` );
 			return;
 		}
 
