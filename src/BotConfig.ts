@@ -17,6 +17,7 @@ export enum PrependResponseMessageType {
 export class RequestConfig {
 	public channels: string[];
 	public internalChannels: string[];
+	public requestLimits: number[];
 	public testingRequestChannels: string[];
 	public logChannel: string;
 
@@ -37,6 +38,7 @@ export class RequestConfig {
 	constructor() {
 		this.channels = getOrDefault( 'request.channels', [] );
 		this.internalChannels = this.channels.length ? config.get( 'request.internalChannels' ) : getOrDefault( 'request.internalChannels', [] );
+		this.requestLimits = this.channels.length ? config.get( 'request.requestLimits' ) : getOrDefault( 'request.requestLimits', [] );
 		this.testingRequestChannels = getOrDefault( 'request.testingRequestChannels', [] );
 		this.logChannel = config.get( 'request.logChannel' );
 
@@ -80,12 +82,14 @@ export interface RoleGroupConfig {
 
 export interface FilterFeedConfig {
 	jql: string;
+	jqlRemoved?: string;
 	channel: string;
 	interval: number;
 	filterFeedEmoji: string;
 	title: string;
 	titleSingle?: string;
 	publish?: boolean;
+	cached?: boolean;
 }
 
 export interface VersionFeedConfig {
@@ -102,8 +106,7 @@ export default class BotConfig {
 	public static debug: boolean;
 	public static logDirectory: false | string;
 
-	// TODO: make private again when /crosspost api endpoint is implemented into discord.js
-	public static token: string;
+	private static token: string;
 	public static owners: string[];
 
 	public static homeChannel: string;

@@ -17,7 +17,7 @@ export default class FilterFeedTask extends Task {
 	private titleSingle: string;
 	private publish: boolean;
 
-	private knownTickets = new Set<string>();
+	private	lastRun: number;
 
 	constructor( feedConfig: FilterFeedConfig, channel: Channel ) {
 		super();
@@ -31,16 +31,7 @@ export default class FilterFeedTask extends Task {
 	}
 
 	protected async init(): Promise<void> {
-		const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJqlGet( {
-			jql: this.jql,
-			fields: ['key'],
-		} );
-
-		if ( searchResults.issues ) {
-			for ( const result of searchResults.issues ) {
-				this.knownTickets.add( result.key );
-			}
-		}
+		this.lastRun = new Date().valueOf();
 	}
 
 	protected async run(): Promise<void> {
@@ -49,11 +40,11 @@ export default class FilterFeedTask extends Task {
 			return;
 		}
 
-		let upcomingTickets: string[];
+		let unknownTickets: string[];
 
 		try {
 			const searchResults = await MojiraBot.jira.issueSearch.searchForIssuesUsingJqlGet( {
-				jql: this.jql,
+				jql: this.jql.replace( 'lastRun', this.lastRun.toString() ),
 				fields: ['key'],
 			} );
 
@@ -62,13 +53,11 @@ export default class FilterFeedTask extends Task {
 				return;
 			}
 
-			upcomingTickets = searchResults.issues.map( ( { key } ) => key );
+			unknownTickets = searchResults.issues.map( ( { key } ) => key );
 		} catch ( err ) {
 			FilterFeedTask.logger.error( `[${ this.id }] Error when searching for issues. ${ LoggerUtil.shortenJiraError( err ) }` );
 			return;
 		}
-
-		const unknownTickets = upcomingTickets.filter( key => !this.knownTickets.has( key ) );
 
 		if ( unknownTickets.length > 0 ) {
 			try {
@@ -99,10 +88,7 @@ export default class FilterFeedTask extends Task {
 			}
 		}
 
-		for ( const ticket of unknownTickets ) {
-			this.knownTickets.add( ticket );
-			FilterFeedTask.logger.debug( `[${ this.id }] Added ${ ticket } to known tickets for filter feed task ${ this.id }` );
-		}
+		this.lastRun = new Date().valueOf();
 	}
 
 	public asString(): string {

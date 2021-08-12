@@ -68,6 +68,16 @@ request:
     - <string>
     - ...
 
+  # The number of allowed requests per user per day.
+  # If the number of requests created by a single user exceeds this amount, new requests will not be forwarded to the internal channels.
+  # The length of this array MUST be the same as the length of `channels`.
+  # Setting to a negative number will remove the request limit
+  # Optional; empty by default.
+  requestLimits:
+    - <number>
+    - <number>
+    - ...
+
   # The IDs of the server's testing request channels.
   # Optional; empty by default.
   testingRequestChannels:
@@ -105,6 +115,9 @@ request:
   
   # An emoji or emoji ID which, when used, doesn't trigger the response template message.
   ignorePrependResponseMessageEmoji: <string>
+
+  # An emoji or emoji ID which, when used, doesn't resolve the request.
+  ignoreResolutionEmoji: <string>
 
   # The amount of time in milliseconds between a volunteer reacts to the message and the bot deletes its message.
   resolveDelay: <number>
@@ -165,6 +178,10 @@ filterFeeds:
     # The filter's JQL query.
   - jql: <string>
 
+    # The JQL query for which tickets should be allowed to be reposted that have been posted previously.
+    # Optional; Only include if cached is set to true
+    jqlRemoved: <string>
+
     # The ID of the channel in which the feed should be sent.
     channel: <string>
 
@@ -186,6 +203,11 @@ filterFeeds:
     # Whether the bot should automatically publish feed messages it posts, if the channel is an announcement channel.
     # Optional; false by default.
     publish: <boolean>
+
+    # Whether the bot should cache tickets in the filter feed, 
+    # If false, the property lastRun should be included in the jql, but when true, the filter feed will be less efficient.
+    # Optional; true by default.
+    cached: <boolean>
   
   - <see above>
   - ...
