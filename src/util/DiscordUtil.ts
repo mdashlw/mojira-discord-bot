@@ -26,8 +26,8 @@ export default class DiscordUtil {
 		return await guild.members.fetch( userId );
 	}
 
-	public static async fetchMessage( message: Message | PartialMessage ): Promise<Message> {
-		if ( message.partial ) {
+	public static async fetchMessage( message: Message ): Promise<Message> {
+		if ( !message.deleted && message.partial ) {
 			message = await message.fetch();
 		}
 		return message as Message;
